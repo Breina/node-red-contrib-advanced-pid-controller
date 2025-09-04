@@ -1,0 +1,105 @@
+<script type="text/javascript">
+    RED.nodes.registerType('advanced-pid-controller', {
+        category: 'function',
+        color: '#a6bbcf',
+        defaults: {
+            name: { value: "" },
+            k_p: { value: 0.15, required: true, validate: RED.validators.number() },
+            k_i: { value: 0.1, required: true, validate: RED.validators.number() },
+            k_d: { value: 0.03, required: true, validate: RED.validators.number() },
+            dt: { value: 1, required: true, validate: RED.validators.number() },
+            output_min: { value: 0, required: true, validate: RED.validators.number() },
+            output_max: { value: 100, required: true, validate: RED.validators.number() },
+            deadband: { value: 0.5, required: true, validate: RED.validators.number() }
+        },
+        inputs: 1,
+        outputs: 3, // Set to three outputs
+        icon: "font-awesome/fa-cogs",
+        label: function() {
+            return this.name || "advanced-pid-controller";
+        },
+        outputLabels: ["Full Status", "Digital Enable", "Analog Value"] // Add labels for all three
+    });
+</script>
+
+<script type="text/x-red" data-template-name="advanced-pid-controller">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+
+    <hr>
+    <h4>PID Gains</h4>
+    <div class="form-row">
+        <label for="node-input-k_p">Kp (Proportional)</label>
+        <input type="number" id="node-input-k_p" step="0.001">
+    </div>
+    <div class="form-row">
+        <label for="node-input-k_i">Ki (Integral)</label>
+        <input type="number" id="node-input-k_i" step="0.001">
+    </div>
+    <div class="form-row">
+        <label for="node-input-k_d">Kd (Derivative)</label>
+        <input type="number" id="node-input-k_d" step="0.001">
+    </div>
+
+    <hr>
+    <h4>Controller Settings</h4>
+    <div class="form-row">
+        <label for="node-input-dt">Time Interval (dt)</label>
+        <input type="number" id="node-input-dt" placeholder="in seconds">
+    </div>
+    <div class="form-row">
+        <label for="node-input-output_min">Output Min</label>
+        <input type="number" id="node-input-output_min" placeholder="e.g., 0">
+    </div>
+    <div class="form-row">
+        <label for="node-input-output_max">Output Max</label>
+        <input type="number" id="node-input-output_max" placeholder="e.g., 100">
+    </div>
+    <div class="form-row">
+        <label for="node-input-deadband">Deadband</label>
+        <input type="number" id="node-input-deadband" step="0.1" placeholder="e.g., 0.5">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="advanced-pid-controller">
+    <p>This node provides an advanced PID (Proportional-Integral-Derivative) controller with multiple operational modes.</p>
+
+    <h3>Configuration</h3>
+    <ul>
+        <li><b>Kp (Proportional)</b>: The gain for the proportional term.</li>
+        <li><b>Ki (Integral)</b>: The gain for the integral term.</li>
+        <li><b>Kd (Derivative)</b>: The gain for the derivative term.</li>
+        <li><b>Time Interval (dt)</b>: The controller's update interval in seconds.</li>
+        <li><b>Output Min/Max</b>: The minimum and maximum limits for the controller's output (anti-windup).</li>
+        <li><b>Deadband</b>: A range around the setpoint where the controller will pause its calculations to prevent oscillation.</li>
+    </ul>
+
+    <h3>Inputs</h3>
+    <p>The node accepts messages with the following <code>msg.topic</code> values:</p>
+    <dl class="message-properties">
+        <dt>mode <span class="property-type">integer</span></dt>
+        <dd>Sets the operational mode of the controller:
+            <ul>
+                <li><code>0</code>: <b>Auto</b> - The PID controller is active.</li>
+                <li><code>1</code>: <b>Manual</b> - The controller's output is manually set by the <code>manualValue</code> input.</li>
+                <li><code>2</code>: <b>Off</b> - The controller is inactive, and the output is 0.</li>
+            </ul>
+        </dd>
+        <dt>PV <span class="property-type">number</span></dt>
+        <dd>The current <b>P</b>rocess <b>V</b>alue (e.g., the sensor reading).</dd>
+        <dt>SV <span class="property-type">number</span></dt>
+        <dd>The desired <b>S</b>etpoint <b>V</b>alue for the controller.</dd>
+        <dt>manualValue <span class="property-type">number</span></dt>
+        <dd>The value to output when the controller is in <b>Manual</b> mode.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <p>The node has three outputs:</p>
+    <ol>
+        <li><b>Full Status</b>: Sends a message object containing the controller's state (PV, SV, P, I, D, and the final Output value).</li>
+        <li><b>Digital Enable</b>: Sends a boolean message. <code>true</code> if the mode is Auto or Manual, and <code>false</code> if the mode is Off.</li>
+        <li><b>Analog Value</b>: Sends a simple message with the final output value as a number in <code>msg.payload</code>.</li>
+    </ol>
+</script>

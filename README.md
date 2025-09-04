@@ -1,78 +1,103 @@
-## Easy PID Controller Node for Node-RED
 
-The `easy-pid-controller` is a simple-to-use Node-RED node that provides Proportional-Integral-Derivative (PID) control functionalities. This node is designed to integrate easily with various control systems and offers configuration options for `0-10V` and `4-20mA` control signals.
+# Advanced PID Controller for Node-RED
 
-### Features
+This project provides a versatile and user-friendly PID (Proportional-Integral-Derivative) controller package for Node-RED. It began as a fork of `node-red-contrib-easy-pid-controller` and has been significantly enhanced with advanced features for more flexible process control.
 
-- Easy to configure PID parameters: Kp, Ki, Kd.
-- Setpoint (`SV`) input for desired control level.
-- Process Variable (`PV`) input to feedback the current state.
-- Output values for PID components (P, I, D), final output signal, and mapped value signal.
-- Choice of control signal types: `0-10V` or `4-20mA`.
-- Real-time status updates during runtime for easier debugging and monitoring.
+The package includes the main **Advanced PID Controller** node and several **Companion Nodes** to make building control flows intuitive and clean, especially for beginners.
 
-### Installation
+## Features
+
+  - **Multiple Operational Modes**: Switch between **Auto**, **Manual**, and **Off** modes on the fly.
+  - **Advanced PID Settings**: Includes **Deadband** configuration to prevent output oscillation around the setpoint.
+  - **Anti-Windup**: The controller's output is clamped between configurable minimum and maximum limits.
+  - **Dedicated Outputs**: The node features three separate outputs for the full status object, a simple boolean "enable" signal, and the direct analog output value.
+  - **Companion Nodes**: A set of helper nodes to provide clear, topic-free inputs for Setpoint (SV), Process Value (PV), Mode, and Manual Value.
+  - **Easy Configuration**: All PID parameters (Kp, Ki, Kd), timing, and limits are easily configured in the node's editor.
+
+## Installation
+
+Run the following command in your Node-RED user directory (typically `~/.node-red`):
 
 ```bash
-npm install node-red-contrib-easy-pid-controller
+npm install node-red-contrib-advanced-pid-controller
 ```
 
-### Usage
+-----
 
-1. Drag and drop the `easy-pid-controller` node into your Node-RED flow.
-2. Double click on the node to configure its parameters.
-3. Connect it to other nodes to provide `PV` and `SV` inputs and get the output signals.
-4. Deploy and monitor the control signal in real-time.
+## Usage
 
-### Inputs
+This package contains multiple nodes that appear in the function category of the palette.
 
-- `SV`: The desired setpoint value for the controller. Previously was part of the node's configuration, now can be sent as a `msg.payload` with the topic `SV`.
-- `PV`: The process variable or the current state of the system.
-- `auto`: Boolean signal. If set to `true`, the PID loop starts.
+### 1\. The Main Controller
 
-### Outputs
+The core of the package is the `advanced-pid-controller` node. Configure its PID parameters in the properties dialog. This node receives all inputs via messages with specific topics.
 
-The node outputs an object payload containing:
+### 2\. Companion Nodes (Recommended)
 
-- `PV`: The current process variable.
-- `SV`: The setpoint.
-- `P`, `I`, `D`: PID component values.
-- `Output`: The final PID calculated signal.
-- `Value`: The mapped control signal according to the sensor type (`0-10V` or `4-20mA`).
+For easier and more readable flows, use the companion nodes to feed data into the main controller:
 
-### Changelog
+  - **Setpoint (SV)**: Feeds a numerical payload as the controller's setpoint.
+  - **Process Value (PV)**: Feeds a numerical payload as the current process value.
+  - **Mode**: Feeds a numerical payload (0, 1, or 2) to set the operational mode.
+  - **Manual Value**: Feeds a numerical payload as the output value for manual mode.
 
-#### v1.2.1
+A typical flow looks like this:
 
-- **Added**: Node status updates during runtime to display relevant information like current PV, PID activation state, and more.
-  
-#### v1.2.0
+```
+[Inject SV]  --> [Setpoint (SV)]    \
+[Sensor Data]--> [Process Value (PV)] -- > [advanced-pid-controller] --> Outputs...
+[Select Mode]--> [Mode]             /
+```
 
-- **Changed**: Moved the Setpoint (`SV`) from node configuration to `msg.payload` with the topic `SV`.
+-----
 
-#### v1.1.0
+## Node Reference
 
-- **Added**: New output value `Value` that provides the direct control signal based on the sensor type configuration.
-- **Improved**: Code documentation and error handling for invalid inputs.
+### `advanced-pid-controller`
 
-#### v1.0.0
+#### Inputs
 
-- Initial release with basic PID functionalities.
-- Support for `0-10V` and `4-20mA` signal types.
+The node accepts messages with the following `msg.topic` values:
 
-### Contributing
+  - **`mode`** (`integer`): Sets the operational mode:
+      - `0`: **Auto** - The PID controller is active.
+      - `1`: **Manual** - The output is manually set by the `manualValue` input.
+      - `2`: **Off** - The controller is inactive, output is 0, and enable is false.
+  - **`PV`** (`number`): The current **P**rocess **V**alue (e.g., the sensor reading).
+  - **`SV`** (`number`): The desired **S**etpoint **V**alue for the controller.
+  - **`manualValue`** (`number`): The value to output when the controller is in **Manual** mode.
+
+#### Outputs
+
+The node has three outputs:
+
+1.  **Full Status** (`object`): Sends a message object containing the controller's complete state (`{PV, SV, P, I, D, Output}`).
+2.  **Digital Enable** (`boolean`): Sends `true` if the mode is Auto or Manual, and `false` if the mode is Off.
+3.  **Analog Value** (`number`): Sends a simple message with the final output value as the `msg.payload`.
+
+### Companion Nodes
+
+  - `Setpoint (SV)`
+  - `Process Value (PV)`
+  - `Mode`
+  - `Manual Value`
+
+Each companion node takes any `msg.payload` as input, sets the appropriate `msg.topic`, and passes the message on. They require no configuration.
+
+-----
+
+## Contributing
 
 Contributions to improve the node or fix any issues are always welcome. Please submit a pull request on the GitHub repository.
 
-### License
+## License
 
-GPL-3.0 License. See `LICENSE` file for details.
+This project is licensed under the GPL-3.0 License. See the `LICENSE` file for details.
 
-### Example
+## Author
 
-Visit the `examples/` directory for a sample flow illustrating the usage of the node.
+  - **Marc Alzen** ([@MarAlze](https://github.com/MarAlze))
 
-### Author 
+### Original Author
 
-Harshad Joshi @ Bufferstack.IO Analytics Technology LLP, Pune
-
+This project is a fork of `node-red-contrib-easy-pid-controller`, originally created by **Harshad Joshi**.

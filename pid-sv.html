@@ -1,0 +1,28 @@
+<script type="text/javascript">
+    RED.nodes.registerType('pid-setpoint', {
+        category: 'function',
+        color: '#C0DEED', // A slightly different color to distinguish it
+        defaults: {
+            name: { value: "" }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "fa-bullseye",
+        label: function() {
+            return this.name || "Setpoint (SV)";
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="pid-setpoint">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Setpoint (SV)">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="pid-setpoint">
+    <p>A companion node for the Advanced PID Controller.</p>
+    <p>This node sets <code>msg.topic</code> to <code>SV</code> and passes the message through. Use this to feed a setpoint value into the main PID controller node.</p>
+    <p>The incoming <code>msg.payload</code> should be the desired setpoint as a number.</p>
+</script>
