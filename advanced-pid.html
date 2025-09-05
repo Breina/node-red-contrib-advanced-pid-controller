@@ -13,12 +13,12 @@
             deadband: { value: 0.5, required: true, validate: RED.validators.number() }
         },
         inputs: 1,
-        outputs: 3, // Set to three outputs
+        outputs: 3,
         icon: "font-awesome/fa-cogs",
         label: function() {
             return this.name || "advanced-pid-controller";
         },
-        outputLabels: ["Full Status", "Digital Enable", "Analog Value"] // Add labels for all three
+        outputLabels: ["Full Status", "Digital Enable", "Analog Value"]
     });
 </script>
 
@@ -87,6 +87,8 @@
                 <li><code>2</code>: <b>Off</b> - The controller is inactive, and the output is 0.</li>
             </ul>
         </dd>
+        <dt>autoEnable <span class="property-type">boolean</span></dt>
+        <dd>When in Auto mode, this input controls the controller's state. If <code>true</code> (default), the controller runs. If <code>false</code>, the controller pauses and sets its outputs to 0 and false.</dd>
         <dt>PV <span class="property-type">number</span></dt>
         <dd>The current <b>P</b>rocess <b>V</b>alue (e.g., the sensor reading).</dd>
         <dt>SV <span class="property-type">number</span></dt>
@@ -99,7 +101,7 @@
     <p>The node has three outputs:</p>
     <ol>
         <li><b>Full Status</b>: Sends a message object containing the controller's state (PV, SV, P, I, D, and the final Output value).</li>
-        <li><b>Digital Enable</b>: Sends a boolean message. <code>true</code> if the mode is Auto or Manual, and <code>false</code> if the mode is Off.</li>
+        <li><b>Digital Enable</b>: Sends a boolean message. <code>true</code> if the mode is Auto (and enabled) or Manual. It sends <code>false</code> if the mode is Off or if Auto mode is paused.</li>
         <li><b>Analog Value</b>: Sends a simple message with the final output value as a number in <code>msg.payload</code>.</li>
     </ol>
 </script>

@@ -43,6 +43,7 @@ module.exports = function(RED) {
         node.mode = 2; // Default mode is 2 (Off)
         node.processValue = 0;
         node.manualValue = 0;
+        node.autoEnable = true; // Auto mode enable flag, defaults to true.
 
         // Validate that all necessary parameters are valid numbers.
         if (isNaN(node.k_p) || isNaN(node.k_i) || isNaN(node.k_d) || isNaN(node.dt) || isNaN(node.output_min) || isNaN(node.output_max) || isNaN(node.deadband)) {
@@ -77,8 +78,8 @@ module.exports = function(RED) {
         function startPID() {
             stopPID(); // Ensure no multiple timers are running.
             pidTimer = setInterval(function() {
-                // The timer only sends output when in auto mode.
-                if (node.mode === 0) {
+                // The timer only sends output when in auto mode AND enabled.
+                if (node.mode === 0 && node.autoEnable === true) {
                     let pidOutput = controller.update(node.processValue);
                     sendOutputs(pidOutput, true);
                 }
@@ -137,6 +138,11 @@ module.exports = function(RED) {
                         node.processValue = msg.payload;
                     }
                 }
+                
+                // NEW: Update the auto enable flag.
+                if (msg.topic === 'autoEnable') {
+                    node.autoEnable = (msg.payload === true);
+                }
 
                 // Set the operational mode based on an integer input.
                 if (msg.topic === 'mode') {
@@ -149,11 +155,18 @@ module.exports = function(RED) {
                 // Execute logic based on the current operational mode.
                 switch (node.mode) {
                     case 0: // Auto Mode
-                        node.status({ fill: "green", shape: "dot", text: "Auto (0)" });
-                        if (pidTimer === null) {
-                            startPID();
+                        // Check the autoEnable flag within auto mode.
+                        if (node.autoEnable === true) {
+                            node.status({ fill: "green", shape: "dot", text: "Auto (0) - Running" });
+                            if (pidTimer === null) {
+                                startPID();
+                            }
+                        } else {
+                            node.status({ fill: "yellow", shape: "ring", text: "Auto (0) - Paused" });
+                            stopPID();
+                            sendOutputs(0.0, false); // Send 0.0 and disable while paused.
                         }
-                        // Output is handled by the setInterval callback.
+                        // Output is handled by the setInterval callback or the logic above.
                         break;
                     case 1: // Manual Mode
                         stopPID();

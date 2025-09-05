@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-advanced-pid-controller",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A Node-RED node for implementing an advanced PID controller",
   "main": "advanced-pid.js",
   "scripts": {
@@ -12,11 +12,16 @@
       "pid-setpoint": "pid-sv.js",
       "pid-process-value": "pid-pv.js",
       "pid-mode": "pid-mode.js",
-      "pid-manual-value": "pid-manual.js"
+      "pid-manual-value": "pid-manual.js",
+      "pid-auto-enable": "pid-auto-enable.js"
     }
   },
   "author": "Marc Alzen @ Rasche & Wessler GmbH (github.com/MarAlze)",
   "license": "GPL-3.0",
+  "engines": {
+    "node": ">=16.0.0",
+    "node-red": ">=3.0.0"
+  },
   "dependencies": {
     "advanced-pid-controller": "1.0.1"
   },

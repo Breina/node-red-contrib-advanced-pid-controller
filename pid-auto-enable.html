@@ -1,0 +1,28 @@
+<script type="text/javascript">
+    RED.nodes.registerType('pid-auto-enable', {
+        category: 'function',
+        color: '#C0DEED', 
+        defaults: {
+            name: { value: "" }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "fa-play-circle-o",
+        label: function() {
+            return this.name || "Auto Enable";
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="pid-auto-enable">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Auto Enable">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="pid-auto-enable">
+    <p>A companion node for the Advanced PID Controller.</p>
+    <p>This node sets <code>msg.topic</code> to <code>autoEnable</code> and passes the message through. Use this to enable or pause the controller when it is in Auto mode.</p>
+    <p>The node interprets truthy values (<code>true</code>, <code>1</code>) as enable and all other values as disable (<code>false</code>).</p>
+</script>
